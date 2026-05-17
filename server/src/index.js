@@ -27,4 +27,4 @@ const chatWithGemini = async (input) => {
 }
 
 
-chatWithGemini("Is AI take job?")
+chatWithGemini("learn how to use AI tools")
