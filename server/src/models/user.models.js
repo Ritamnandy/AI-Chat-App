@@ -47,7 +47,7 @@ userSchema.pre("save", async function () {
     this.password = await bcrypt.hash(this.password, 10);
 })
 
-userSchema.methods.isPasswordCheck = async function (password) {
+userSchema.methods.isPasswordMatch = async function (password) {
     return await bcrypt.compare(password, this.password);
 }
 userSchema.methods.createAccessToken = async function () {
@@ -75,11 +75,6 @@ userSchema.methods.createRefreshToken = async function () {
     )
 }
 
-
-
-
 const User = mongoose.model("User", userSchema);
-
-
 
 export { User };
