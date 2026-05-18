@@ -15,4 +15,13 @@ app.use(cors({
 
 app.use(express.static("public"))
 
+//import routes
+
+import authRoutes from "./routes/user.routes.js"
+
+
+app.use("/api/v1/auth", authRoutes)
+
+
+
 export { app }
