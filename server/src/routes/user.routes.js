@@ -17,7 +17,7 @@ router.route("/login").post(loginUser)
 router.route("/refreshaccesstoken").post(refreshAccessToken)
 router.route("/logout").post(verifyJWT, logoutUser)
 router.route("/changepassword").post(verifyJWT, changeCurrentPassword)
-router.route("/changeavatar").post(verifyJWT, upload.single('avatar'), setAvatar)
+router.route("/avatar").post(verifyJWT, upload.single('avatar'), setAvatar)
 
 
 //get recurrent user details

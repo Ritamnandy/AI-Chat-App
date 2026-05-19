@@ -11,13 +11,17 @@ import jwt from 'jsonwebtoken';
 
 const generateAccessAndRefreshToken = async (userId) => {
     const user = await User.findById(userId);
-    const accessToken = user.generateAccessToken();
-    const refreshToken = user.generateRefreshToken();
+    const accessToken = user.createAccessToken();
+    const refreshToken = user.createRefreshToken();
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
     return { accessToken, refreshToken };
 }
-
+// create option
+const options = {
+    httpOnly: true,
+    secure: true,
+}
 
 // Create a new user
 const registerUser = asyncHandler(async (req, res) => {
@@ -30,7 +34,8 @@ const registerUser = asyncHandler(async (req, res) => {
     }
     // Check if user already exists
     const existingUser = await User.findOne({ email });
-    if (!existingUser) {
+
+    if (existingUser) {
         return res.status(400).json(new ApiError(400, "Bad request", ["User already exists"]));
     }
     // Create new user
@@ -42,8 +47,12 @@ const registerUser = asyncHandler(async (req, res) => {
     });
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
     const createdUser = await User.findById(user._id).select("-password -refreshToken")
-    return res.status(201).json(new ApiResponse(201, "User created successfully", { user: createdUser, accessT: accessToken, refreshT: refreshToken }));
+    return res.status(201)
+        .cookie("refreshToken", refreshToken, options)
+        .cookie("accessToken", accessToken, options)
+        .json(new ApiResponse(201, "User created successfully", { user: createdUser, accessT: accessToken, refreshT: refreshToken }));
 })
+
 
 
 // Login user
@@ -60,13 +69,16 @@ const loginUser = asyncHandler(async (req, res) => {
     if (!user) {
         return res.status(400).json(new ApiError(400, "Bad request", ["Invalid  email"]));
     }
-    const isPassword = awaituser.isPasswordMatch(password)
+    const isPassword = await user.isPasswordMatch(password)
     if (!isPassword) {
         return res.status(400).json(new ApiError(400, "Bad request", ["Invalid  password"]));
     }
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
-    return res.status(200).json(new ApiResponse(200, "User logged in successfully", { user: loggedInUser, accessT: accessToken, refreshT: refreshToken }));
+    return res.status(200)
+        .cookie("refreshToken", refreshToken, options)
+        .cookie("accessToken", accessToken, options)
+        .json(new ApiResponse(200, "User logged in successfully", { user: loggedInUser, accessT: accessToken, refreshT: refreshToken }));
 })
 
 //logout user
@@ -80,7 +92,10 @@ const logoutUser = asyncHandler(async (req, res) => {
             refreshToken: " "
         }
     }, { returnDocument: "after" })
-    return res.status(200).json(new ApiResponse(200, "User logged out successfully", {}));
+    return res.status(200)
+        .clearCookie("accessToken")
+        .clearCookie("refreshToken")
+        .json(new ApiResponse(200, "User logged out successfully", {}));
 })
 
 // Change password
@@ -140,7 +155,10 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         return res.status(400).json(new ApiError(400, "Bad Request", ["Invalid refresh token"]));
     }
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
-    return res.status(200).json(new ApiResponse(200, "Access token refreshed successfully", { accessT: accessToken, refreshT: refreshToken }));
+    return res.status(200)
+        .cookie("refreshToken", refreshToken, options)
+        .cookie("accessToken", accessToken, options)
+        .json(new ApiResponse(200, "Access token refreshed successfully", { accessT: accessToken, refreshT: refreshToken }));
 })
 
 //get corrent user details
