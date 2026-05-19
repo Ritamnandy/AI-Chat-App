@@ -21,9 +21,11 @@ app.use(express.static("public"))
 //import routes
 
 import authRoutes from "./routes/user.routes.js"
+import chatRoutes from "./routes/chat.routes.js"
 
 
 app.use("/api/v1/auth", authRoutes)
+app.use("/api/v1/chat", chatRoutes)
 
 
 

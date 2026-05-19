@@ -27,7 +27,7 @@ const messageWithAI = asyncHandler(async (req, res) => {
     if (!aiResponse) {
         return res.status(500).json(new ApiError(500, "internal error", ["internal error"]))
     }
-    const chat = await Chat.create({
+    const chatmodel = await Chat.create({
         Onwer: userId,
         // title:
         Message: [
@@ -42,7 +42,7 @@ const messageWithAI = asyncHandler(async (req, res) => {
             },
         ]
     })
-    return res.status(200).json(new ApiResponse(200, "success ", { chat }))
+    return res.status(200).json(new ApiResponse(200, "success ", { chatmodel }))
 })
 
 const generateImageWithAI = asyncHandler(async (req, res) => {
@@ -78,4 +78,4 @@ const generateImageWithAI = asyncHandler(async (req, res) => {
 })
 
 
-export { messageStream, generateImageWithAI }
+export { messageWithAI, generateImageWithAI }
