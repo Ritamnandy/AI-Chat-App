@@ -2,28 +2,36 @@
 
 import mongoose from "mongoose";
 
+const messageSchema = new mongoose.Schema({
+
+    role: {
+        type: String,
+        enum: ["user", "model"],
+        required: true,
+    },
+
+    text: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+
+}, { _id: false });
 
 const chatSchema = new mongoose.Schema({
-    onwer: {
+    Onwer: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true,
         index: true
     },
-    userMessage: [
-        {
-            type: String,
-            trim: true,
-            required: true
-        },
-    ],
-    botMessage: [
-        {
-            type: String,
-            required: true,
-            trim: true
-        }
-    ]
+    title: {
+        type: String,
+
+        default: "New Chat",
+    },
+    Message: [messageSchema],
+
 
 }, { timestamps: true })
 
