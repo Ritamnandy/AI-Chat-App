@@ -148,6 +148,13 @@ AI-Chat-App/
 - Google Gemini API Key
 - Cloudinary Account
 
+### Clone the Repository
+
+```bash
+git clone https://github.com/Ritamnandy/AI-Chat-App.git
+cd AI-Chat-App
+```
+
 ### Backend Setup
 
 1. **Install dependencies**
