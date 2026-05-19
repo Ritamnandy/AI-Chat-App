@@ -5,39 +5,45 @@ The Node.js/Express backend for the AI-Chat-App, providing RESTful API endpoints
 ## 📋 Overview
 
 This backend service handles:
-- User authentication and JWT token management
-- Chat history persistence in MongoDB
-- Gemini AI API integration for conversations
-- AI image generation
-- File uploads to Cloudinary
-- User profile management
+- ✅ User authentication and JWT token management
+- ✅ Chat history persistence in MongoDB
+- ✅ Gemini AI API integration for intelligent conversations
+- ✅ AI image generation from text prompts
+- ✅ File uploads and management via Cloudinary
+- ✅ User profile management with avatar support
+- ✅ Secure password hashing with bcrypt
+- ✅ HTTP-only cookie-based token storage
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Runtime**: Node.js 18+ ([Download](https://nodejs.org/))
-- **Framework**: Express.js 5.2.1
-- **Database**: MongoDB 5.0+
-- **Authentication**: JWT (jsonwebtoken 9.0.3)
-- **Password Hashing**: bcrypt 6.0.0
-- **File Upload**: Multer 2.1.1
-- **Cloud Storage**: Cloudinary 2.10.0
-- **AI Integration**: Google Gemini API (@google/genai 2.3.0)
-- **Utilities**: dotenv, cors, cookie-parser
-- **Development**: nodemon 3.1.14
+| Component | Package | Version |
+|-----------|---------|---------|
+| **Runtime** | Node.js | 18+ |
+| **Framework** | Express.js | 5.2.1 |
+| **Database** | MongoDB | 5.0+ |
+| **Authentication** | jsonwebtoken | 9.0.3 |
+| **Encryption** | bcrypt | 6.0.0 |
+| **File Upload** | Multer | 2.1.1 |
+| **Cloud Storage** | Cloudinary | 2.10.0 |
+| **AI Integration** | @google/genai | 2.3.0 |
+| **Middleware** | cors, cookie-parser | Latest |
+| **Development** | nodemon | 3.1.14 |
 
 ---
 
 ## 📦 Installation
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 18+ ([Download](https://nodejs.org/))
 - npm or yarn
-- MongoDB 5.0+
-- API Keys (Gemini, Cloudinary)
+- MongoDB 5.0+ ([Install](https://www.mongodb.com/try/download/community) or [MongoDB Atlas](https://www.mongodb.com/cloud/atlas))
+- API Keys:
+  - Google Gemini API key from [ai.google.dev](https://ai.google.dev)
+  - Cloudinary account from [cloudinary.com](https://cloudinary.com)
 
-### Setup
+### Setup Steps
 
 1. **Navigate to server directory**
    ```bash
@@ -61,13 +67,20 @@ This backend service handles:
    ```bash
    npm start
    ```
+   
    Server will run at `http://localhost:5000` with auto-reload via nodemon
+
+### Verify Installation
+```bash
+# Server should output:
+# Server is running on port 5000
+```
 
 ---
 
 ## ⚙️ Configuration
 
-Create a `.env` file in the `server/` directory:
+Create a `.env` file in the `server/` directory with the following configuration:
 
 ```env
 # Server Configuration
@@ -81,8 +94,8 @@ CORS_ORIGIN=http://localhost:3000
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/chatapp_db
 
 # JWT Configuration
-JWT_SECRET=your_super_secret_jwt_key_change_in_production
-JWT_REFRESH_SECRET=your_super_secret_refresh_key_change_in_production
+ACCESS_TOKEN_SECRET=your_super_secret_access_token_key_change_in_production
+REFRESH_TOKEN_SECRET=your_super_secret_refresh_token_key_change_in_production
 ACCESS_TOKEN_EXPIRY=1d
 REFRESH_TOKEN_EXPIRY=7d
 
@@ -97,20 +110,37 @@ CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 
 ### Environment Variables Explanation
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `PORT` | Server port | `5000` |
-| `NODE_ENV` | Environment type | `development`, `production` |
-| `CORS_ORIGIN` | Allowed CORS origin | `http://localhost:3000` |
-| `MONGODB_URI` | MongoDB connection string | `mongodb+srv://...` |
-| `JWT_SECRET` | JWT signing secret | Random strong string |
-| `JWT_REFRESH_SECRET` | Refresh token secret | Random strong string |
-| `ACCESS_TOKEN_EXPIRY` | Access token duration | `1d`, `24h`, `3600s` |
-| `REFRESH_TOKEN_EXPIRY` | Refresh token duration | `7d`, `168h` |
-| `GEMINI_API_KEY` | Google Gemini API key | Get from [ai.google.dev](https://ai.google.dev) |
-| `CLOUDINARY_NAME` | Cloudinary account name | Your account name |
-| `CLOUDINARY_API_KEY` | Cloudinary API key | From Cloudinary dashboard |
-| `CLOUDINARY_API_SECRET` | Cloudinary API secret | From Cloudinary dashboard |
+| Variable | Type | Description | Example | Required |
+|----------|------|-------------|---------|----------|
+| `PORT` | number | Server port | `5000` | ✅ |
+| `NODE_ENV` | string | Environment type | `development` or `production` | ✅ |
+| `CORS_ORIGIN` | string | Allowed CORS origin for client | `http://localhost:3000` | ✅ |
+| `MONGODB_URI` | string | MongoDB connection string | `mongodb+srv://user:pass@cluster.mongodb.net/db` | ✅ |
+| `ACCESS_TOKEN_SECRET` | string | JWT access token secret (min 32 chars) | Random strong string | ✅ |
+| `REFRESH_TOKEN_SECRET` | string | JWT refresh token secret (min 32 chars) | Random strong string | ✅ |
+| `ACCESS_TOKEN_EXPIRY` | string | Access token duration | `1d`, `24h`, `3600s` | ✅ |
+| `REFRESH_TOKEN_EXPIRY` | string | Refresh token duration | `7d`, `168h` | ✅ |
+| `GEMINI_API_KEY` | string | Google Gemini API key | Get from [ai.google.dev](https://ai.google.dev) | ✅ |
+| `CLOUDINARY_NAME` | string | Cloudinary account name | Your account name | ✅ |
+| `CLOUDINARY_API_KEY` | string | Cloudinary API key | From Cloudinary dashboard | ✅ |
+| `CLOUDINARY_API_SECRET` | string | Cloudinary API secret | From Cloudinary dashboard | ✅ |
+
+### Getting API Keys
+
+#### MongoDB URI
+1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+2. Create a cluster
+3. Get connection string: `mongodb+srv://username:password@cluster.mongodb.net/database_name`
+
+#### Google Gemini API Key
+1. Visit [ai.google.dev](https://ai.google.dev)
+2. Click "Get API Key"
+3. Copy the generated API key
+
+#### Cloudinary Credentials
+1. Sign up at [cloudinary.com](https://cloudinary.com)
+2. Go to Dashboard
+3. Copy: Cloud Name, API Key, and API Secret
 
 ---
 
@@ -119,40 +149,43 @@ CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 ```
 server/
 ├── src/
-│   ├── index.js                    # Server entry point
-│   ├── app.js                      # Express configuration
+│   ├── index.js                    # Server entry point & startup
+│   ├── app.js                      # Express app configuration
 │   ├── constants.js                # App constants
 │   │
-│   ├── controllers/                # Business logic
-│   │   ├── user.controller.js      # User operations
+│   ├── controllers/                # Business logic handlers
+│   │   ├── user.controller.js      # User auth & profile operations
 │   │   └── chat.controller.js      # Chat & AI operations
 │   │
-│   ├── models/                     # MongoDB schemas
-│   │   ├── user.models.js          # User schema
-│   │   └── chat.models.js          # Chat schema
+│   ├── models/                     # MongoDB data models
+│   │   ├── user.models.js          # User schema & methods
+│   │   └── chat.models.js          # Chat/Message schema
 │   │
-│   ├── routes/                     # API route definitions
+│   ├── routes/                     # API endpoint definitions
 │   │   ├── user.routes.js          # Auth endpoints
-│   │   └── chat.routes.js          # Chat endpoints
+│   │   └── chat.routes.js          # Chat & AI endpoints
 │   │
-│   ├── middlewares/                # Express middlewares
-│   │   ├── auth.middlewares.js     # JWT verification
-│   │   └── multer.middlewares.js   # File upload config
+│   ├── middlewares/                # Express middleware functions
+│   │   ├── auth.middlewares.js     # JWT token verification
+│   │   └── multer.middlewares.js   # File upload configuration
 │   │
-│   ├── db/                         # Database
-│   │   └── connect.db.js           # MongoDB connection
+│   ├── db/                         # Database connection
+│   │   └── connect.db.js           # MongoDB connection setup
 │   │
-│   ├── utils/                      # Utility functions
-│   │   ├── apiresponse.js          # Response formatter
-│   │   ├── apierror.js             # Error handler
-│   │   ├── asynchandelar.js        # Async wrapper
-│   │   └── uploadcloudinary.js     # Cloudinary helper
+│   ├── utils/                      # Utility & helper functions
+│   │   ├── apiresponse.js          # Standardized response formatter
+│   │   ├── apierror.js             # Custom error handler
+│   │   ├── asynchandelar.js        # Async error wrapper
+│   │   ├── allaifetures.js         # AI/Gemini integration logic
+│   │   └── uploadcloudinary.js     # Cloudinary upload helper
 │   │
-│   └── public/                     # Static files
-│       └── uploads/                # Temporary uploads
+│   └── public/                     # Static files & uploads
+│       └── uploads/                # Temporary file storage
 │
-├── package.json                    # Dependencies
-└── .env                            # Environment variables (create this)
+├── package.json                    # Project dependencies
+├── README.md                       # This file
+├── api_doc.md                      # Detailed API documentation
+└── .env                            # Environment variables (create manually)
 ```
 
 ---
@@ -161,28 +194,30 @@ server/
 
 ### Base URL: `http://localhost:5000/api/v1`
 
-### Authentication (`/auth`)
+### Authentication Routes (`/auth`)
 
-| Method | Endpoint | Description | Auth | Body |
-|--------|----------|-------------|------|------|
-| POST | `/auth/register` | Register user | ❌ | `{firstName, lastName, email, password}` |
-| POST | `/auth/login` | Login user | ❌ | `{email, password}` |
-| POST | `/auth/refreshaccesstoken` | Refresh token | ❌ | `{refreshToken}` |
-| POST | `/auth/logout` | Logout user | ✅ | - |
-| POST | `/auth/changepassword` | Change password | ✅ | `{oldPassword, newPassword}` |
-| POST | `/auth/avatar` | Upload avatar | ✅ | `FormData: {avatar: file}` |
-| GET | `/auth/me` | Current user info | ✅ | - |
+| Method | Endpoint | Description | Auth | Content-Type |
+|--------|----------|-------------|------|--------------|
+| POST | `/auth/register` | Register new user | ❌ | application/json |
+| POST | `/auth/login` | Login user | ❌ | application/json |
+| POST | `/auth/refreshaccesstoken` | Refresh access token | ❌ | application/json |
+| POST | `/auth/logout` | Logout user | ✅ | application/json |
+| POST | `/auth/changepassword` | Change password | ✅ | application/json |
+| POST | `/auth/avatar` | Upload user avatar | ✅ | multipart/form-data |
+| GET | `/auth/me` | Get current user info | ✅ | - |
 
-### Chat (`/chat`)
+### Chat Routes (`/chat`)
 
-| Method | Endpoint | Description | Auth | Body |
-|--------|----------|-------------|------|------|
-| POST | `/chat/chatwithai` | Send chat message | ✅ | `{message: string}` |
-| POST | `/chat/createimage` | Generate image | ✅ | `{prompt: string}` |
+| Method | Endpoint | Description | Auth | Content-Type |
+|--------|----------|-------------|------|--------------|
+| POST | `/chat/chatwithai` | Send message to AI | ✅ | application/json |
+| POST | `/chat/createimage` | Generate AI image | ✅ | application/json |
+
+**📘 For detailed endpoint documentation, see [api_doc.md](./api_doc.md)**
 
 ---
 
-## 📡 API Usage Examples
+## 📡 Quick API Examples
 
 ### Register User
 ```bash
@@ -196,7 +231,7 @@ curl -X POST http://localhost:5000/api/v1/auth/register \
   }'
 ```
 
-### Login
+### Login User
 ```bash
 curl -X POST http://localhost:5000/api/v1/auth/login \
   -H "Content-Type: application/json" \
@@ -233,39 +268,47 @@ curl -X POST http://localhost:5000/api/v1/auth/avatar \
   -F "avatar=@/path/to/image.jpg"
 ```
 
+### Get Current User
+```bash
+curl -X GET http://localhost:5000/api/v1/auth/me \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
 ---
 
 ## 🔐 Authentication & Security
 
 ### JWT Tokens
-- **Access Token**: Short-lived (1 day), used for API requests
+- **Access Token**: Short-lived (1 day), used for protected API requests
 - **Refresh Token**: Long-lived (7 days), used to obtain new access tokens
-- **Format**: `Bearer <token>` in Authorization header
+- **Storage**: HTTP-only cookies (secure, httpOnly flags enabled)
+- **Format**: `Bearer <token>` in Authorization header OR automatically via cookies
 
 ### Password Security
 - Hashed with bcrypt (10 salt rounds)
-- Never stored in plain text
-- Compared securely during login
+- Never stored or returned in plain text
+- Securely compared during authentication
+- Passwords cannot be the same as other passwords in DB (unique constraint)
 
 ### Protected Routes
-Routes requiring authentication:
-- `/auth/logout`
-- `/auth/changepassword`
-- `/auth/avatar`
-- `/auth/me`
-- `/chat/chatwithai`
-- `/chat/createimage`
+The following routes require a valid JWT token in the `Authorization` header or as a cookie:
+- `POST /auth/logout`
+- `POST /auth/changepassword`
+- `POST /auth/avatar`
+- `GET /auth/me`
+- `POST /chat/chatwithai`
+- `POST /chat/createimage`
 
 ### CORS Protection
-- Configured to specific origin
-- Credentials allowed
-- Configurable via environment
+- Restricted to specified origin (configurable via `CORS_ORIGIN` env var)
+- Credentials allowed for cookie-based authentication
+- Set appropriate origin in production
 
 ---
 
 ## 📊 Database Schemas
 
-### User Schema
+### User Model
 ```javascript
 {
   _id: ObjectId,
@@ -285,124 +328,173 @@ Routes requiring authentication:
     type: String,
     required: true,
     unique: true,
+    trim: true,
     lowercase: true,
-    index: true
+    index: true                     // Indexed for fast lookups
   },
   password: {
     type: String,
     required: true,
-    minlength: 6
+    unique: true                    // Hashed password
   },
-  avatar: String,                    // Cloudinary URL
-  refreshToken: String,
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+  avatar: {
+    type: String,                   // Cloudinary URL
+    trim: true
+  },
+  refreshToken: {
+    type: String,                   // JWT refresh token
+    trim: true
+  },
+  createdAt: Date,
+  updatedAt: Date
 }
 ```
 
-### Chat Schema
+### Chat Model
 ```javascript
 {
   _id: ObjectId,
-  owner: {
+  Owner: {                          // Reference to User (note: typo in original code)
     type: ObjectId,
     ref: 'User',
     required: true,
     index: true
   },
-  userMessages: [String],            // Array of user messages
-  botMessages: [String],             // Array of AI responses
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+  title: {
+    type: String,
+    default: "New Chat"             // Chat session title
+  },
+  Message: [
+    {
+      role: String,                 // "user" or "model"
+      text: String,                 // Message content
+      _id: false                     // No sub-document IDs
+    }
+  ],
+  createdAt: Date,
+  updatedAt: Date
 }
 ```
 
 ---
 
-## 🚀 Development
+## 🚀 Development & Running the Server
 
-### Start Server
+### Start Development Server
 ```bash
 npm start
 ```
-Starts with nodemon - auto-reloads on file changes
+- Starts with nodemon for auto-reload on file changes
+- Server listens on port specified in `.env` (default: 5000)
+- Connected to MongoDB (ensure connection string is valid)
 
-### Scripts Available
+### Available npm Scripts
 ```bash
-npm start     # Start with nodemon
-npm install   # Install dependencies
+npm start      # Start server with nodemon (development)
+npm install    # Install all dependencies
 ```
 
-### Add New Dependencies
-```bash
-npm install package-name
-npm install --save-dev package-name  # Dev dependency
-```
+### Environment Variables at Runtime
+All configuration comes from `.env` file. Changes require server restart.
 
 ---
 
 ## 🛡️ Middleware Stack
 
-The request processing pipeline:
+The request processing pipeline for each request:
 
 ```
-1. express.json()              - Parse JSON bodies
-2. express.urlencoded()        - Parse form data
-3. cookieParser()              - Parse cookies
-4. cors()                      - CORS configuration
-5. express.static()            - Serve static files
-6. verifyJWT()                 - JWT authentication (protected routes)
-7. multer upload()             - File upload handling
-8. Route Handler               - Business logic
-9. Error Handler               - Custom error handling
+1. express.json()              - Parse incoming JSON bodies
+2. express.urlencoded()        - Parse form-encoded bodies
+3. cookieParser()              - Parse cookies from headers
+4. cors()                      - Handle CORS with credentials
+5. express.static()            - Serve public static files
+6. Route matching              - Match request to route handler
+7. verifyJWT()                 - JWT token verification (protected routes only)
+8. multer.single()             - File upload handling (avatar route)
+9. Controller logic            - Business logic execution
+10. Response formatting        - Format response with ApiResponse
+11. Error handling             - Catch and format errors with ApiError
 ```
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Port Already in Use
+### Port Already in Use (Port 5000)
 ```bash
-# Windows
+# Windows - Find and kill process using port 5000
 netstat -ano | findstr :5000
 taskkill /PID <PID> /F
 
-# macOS/Linux
+# macOS/Linux - Find and kill process
 lsof -i :5000
 kill -9 <PID>
 ```
 
 ### MongoDB Connection Error
-- Check MongoDB URI in `.env`
-- Verify IP address is whitelisted in MongoDB Atlas
+**Error:** `Failed to connect to the database`
+
+**Solutions:**
+- Verify `MONGODB_URI` in `.env` is correct
+- Check IP address is whitelisted in MongoDB Atlas network access
 - Ensure MongoDB service is running
 - Test connection with MongoDB Compass
+- Check internet connection
 
 ### GEMINI_API_KEY Not Working
+**Error:** `Invalid API key` or `Authentication failed`
+
+**Solutions:**
 - Verify API key is correct (no extra spaces)
-- Check API is enabled in Google Cloud Console
-- Ensure API key has Generative AI permissions
-- Test at https://ai.google.dev/
+- Check API is enabled in [Google AI Studio](https://ai.google.dev/)
+- Ensure API key has Generative AI API permissions
+- Test API key at https://ai.google.dev/
+- Regenerate key if necessary
 
 ### Cloudinary Upload Fails
-- Verify credentials in `.env`
-- Check account is active
-- Ensure API permissions are set correctly
-- Test credentials in Cloudinary dashboard
+**Error:** `Failed to upload image` or `Unauthorized`
+
+**Solutions:**
+- Verify `CLOUDINARY_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` in `.env`
+- Confirm Cloudinary account is active and not on free tier limitations
+- Check account API permissions in Cloudinary dashboard
+- Test credentials directly in Cloudinary dashboard
+- Ensure image file is valid and not corrupted
+
+### CORS Error
+**Error:** `Access to XMLHttpRequest has been blocked by CORS policy`
+
+**Solutions:**
+- Verify `CORS_ORIGIN` in `.env` matches your client origin (e.g., `http://localhost:3000`)
+- Check client is making requests from exact origin specified
+- Ensure credentials flag is set in client requests
+- Restart server after changing CORS_ORIGIN
+
+### JWT Token Errors
+**Error:** `Invalid token` or `Token expired`
+
+**Solutions:**
+- Ensure token is passed correctly in `Authorization: Bearer <token>` header
+- Check token hasn't expired (compare with current time)
+- Verify `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET` haven't changed
+- Use refresh token endpoint to get new access token
+- Clear cookies if using cookie-based authentication
 
 ---
 
 ## 📝 Response Format
 
-### Success Response
+### Successful Response
 ```json
 {
-  "status": 200,
-  "message": "User registered successfully",
+  "statusCode": 200,
+  "message": "Operation completed successfully",
   "data": {
     "user": {
-      "_id": "...",
-      "firstName": "John",
+      "_id": "507f1f77bcf86cd799439011",
+      "firstName": "john",
+      "lastName": "doe",
       "email": "john@example.com"
     }
   }
@@ -412,8 +504,8 @@ kill -9 <PID>
 ### Error Response
 ```json
 {
-  "status": 400,
-  "message": "Validation error",
+  "statusCode": 400,
+  "message": "Bad request",
   "errors": [
     "Email is required",
     "Password must be at least 6 characters"
@@ -421,26 +513,13 @@ kill -9 <PID>
 }
 ```
 
----
-
-## 🔍 Logging & Debugging
-
-### Enable Verbose Logging
-```bash
-DEBUG=* npm start
-```
-
-### Check Server Health
-```bash
-curl http://localhost:5000/health
-```
-
-### Monitor Requests
-Use tools like:
-- Postman
-- Thunder Client
-- VS Code REST Client
-- curl commands
+### Status Codes Used
+- `200` - OK / Success
+- `201` - Created
+- `400` - Bad Request / Validation error
+- `401` - Unauthorized / Authentication required
+- `404` - Not Found
+- `500` - Internal Server Error
 
 ---
 
@@ -448,16 +527,87 @@ Use tools like:
 
 ### Production Checklist
 - [ ] Set `NODE_ENV=production`
-- [ ] Use strong JWT secrets
-- [ ] Enable HTTPS
-- [ ] Set appropriate CORS origins
-- [ ] Use MongoDB Atlas (not local)
-- [ ] Configure environment variables on server
-- [ ] Set up database backups
-- [ ] Enable API rate limiting
-- [ ] Add request logging
-- [ ] Set up error monitoring (Sentry, etc.)
-- [ ] Use process manager (PM2)
+- [ ] Use very strong, unique JWT secrets (min 32 characters)
+- [ ] Enable HTTPS (not HTTP)
+- [ ] Set appropriate `CORS_ORIGIN` (your production domain)
+- [ ] Use MongoDB Atlas (production MongoDB instance)
+- [ ] Configure all environment variables on hosting platform
+- [ ] Set up database backups and replication
+- [ ] Enable API rate limiting middleware
+- [ ] Implement request/response logging
+- [ ] Set up error monitoring (e.g., Sentry)
+- [ ] Use process manager (PM2 recommended)
+- [ ] Configure firewall rules
+- [ ] Set up SSL/TLS certificates
+- [ ] Enable GZIP compression
+- [ ] Set security headers (helmet.js)
+
+### Recommended Deployment Platforms
+- **Heroku** - Easy deployment, good for small-medium projects
+- **Railway** - Modern alternative to Heroku
+- **Render** - Generous free tier, reliable
+- **AWS EC2** - Full control, scalable
+- **DigitalOcean** - Simple VPS, affordable
+- **Google Cloud** - Comprehensive, enterprise-grade
+- **Microsoft Azure** - Enterprise solutions
+- **Vercel/Netlify** - For serverless deployments
+
+### Deploy to Heroku (Example)
+```bash
+# Install Heroku CLI
+# Login to Heroku
+heroku login
+
+# Create new app
+heroku create your-app-name
+
+# Add environment variables
+heroku config:set PORT=5000
+heroku config:set MONGODB_URI=your_mongodb_uri
+# ... set all required environment variables
+
+# Deploy
+git push heroku main
+
+# View logs
+heroku logs --tail
+```
+
+---
+
+## 📚 Additional Resources
+
+- [Express.js Documentation](https://expressjs.com/)
+- [MongoDB Documentation](https://docs.mongodb.com/)
+- [JWT.io](https://jwt.io/)
+- [Google Gemini API Docs](https://ai.google.dev/docs)
+- [Cloudinary Documentation](https://cloudinary.com/documentation)
+- [bcrypt Documentation](https://github.com/kelektiv/node.bcrypt.js)
+- [Multer Documentation](https://github.com/expressjs/multer)
+
+---
+
+## 📞 Support & Contact
+
+For issues or questions:
+1. Check the [API Documentation](./api_doc.md)
+2. Review the Troubleshooting section above
+3. Check logs: `npm start`
+4. Verify environment variables
+5. Test endpoints with Postman or curl
+
+---
+
+## 📄 License
+
+This project is part of the AI-Chat-App. See main repository for license information.
+
+---
+
+## 👨‍💻 Authors & Contributors
+
+- **Project Lead**: Ritamnandy
+- **Repository**: [AI-Chat-App](https://github.com/Ritamnandy/AI-Chat-App)
 
 ### Deploy to Cloud
 Popular options:
