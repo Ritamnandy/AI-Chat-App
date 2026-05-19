@@ -140,7 +140,7 @@ AI-Chat-App/
 ## 🚀 Setup & Installation
 
 ### Prerequisites
-- Node.js 16+ & npm
+- Node.js 18+ & npm
 - MongoDB (local or Atlas)
 - Flutter SDK 3.11.5+
 - Android Studio (for Android development)
