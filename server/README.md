@@ -5,14 +5,18 @@ The Node.js/Express backend for the AI-Chat-App, providing RESTful API endpoints
 ## 📋 Overview
 
 This backend service handles:
-- ✅ User authentication and JWT token management
-- ✅ Chat history persistence in MongoDB
-- ✅ Gemini AI API integration for intelligent conversations
-- ✅ AI image generation from text prompts
-- ✅ File uploads and management via Cloudinary
-- ✅ User profile management with avatar support
-- ✅ Secure password hashing with bcrypt
-- ✅ HTTP-only cookie-based token storage
+- ✅ **User Authentication** - Registration, login, logout with JWT tokens
+- ✅ **JWT Token Management** - Access & refresh tokens with configurable expiry
+- ✅ **Chat History Persistence** - MongoDB storage for conversation history
+- ✅ **Gemini AI Integration** - Real-time chat with Google Gemini AI (High thinking level)
+- ✅ **AI Image Generation** - Create images from text prompts using Gemini Vision
+- ✅ **File Upload Management** - Cloudinary integration for media storage
+- ✅ **User Profile Management** - Avatar upload, password hashing with bcrypt
+- ✅ **HTTP-only Cookies** - Secure token storage with cookie-parser
+- ✅ **RESTful API** - Well-structured endpoints following REST conventions
+- ✅ **CORS Support** - Cross-origin request handling with configurable origins
+- ✅ **Error Handling** - Custom error utilities and async error wrapper
+- ✅ **Production Ready** - Comprehensive validation and security best practices
 
 ---
 
@@ -23,81 +27,792 @@ This backend service handles:
 | **Runtime** | Node.js | 18+ |
 | **Framework** | Express.js | 5.2.1 |
 | **Database** | MongoDB | 5.0+ |
+| **Database ODM** | Mongoose | 9.6.2 |
 | **Authentication** | jsonwebtoken | 9.0.3 |
-| **Encryption** | bcrypt | 6.0.0 |
+| **Password Hashing** | bcrypt | 6.0.0 |
 | **File Upload** | Multer | 2.1.1 |
 | **Cloud Storage** | Cloudinary | 2.10.0 |
 | **AI Integration** | @google/genai | 2.3.0 |
-| **Middleware** | cors, cookie-parser | Latest |
-| **Development** | nodemon | 3.1.14 |
+| **CORS** | cors | 2.8.6 |
+| **Cookie Parser** | cookie-parser | 1.4.7 |
+| **Environment** | dotenv | 17.4.2 |
+| **Dev Server** | nodemon | 3.1.14 |
 
 ---
 
-## 📦 Installation
+## 📦 Installation & Setup
 
 ### Prerequisites
-- Node.js 18+ ([Download](https://nodejs.org/))
-- npm or yarn
-- MongoDB 5.0+ ([Install](https://www.mongodb.com/try/download/community) or [MongoDB Atlas](https://www.mongodb.com/cloud/atlas))
-- API Keys:
+- **Node.js** 18+ ([Download](https://nodejs.org/))
+- **npm** or **yarn** (comes with Node.js)
+- **MongoDB** 5.0+ ([Local Installation](https://www.mongodb.com/try/download/community) or [MongoDB Atlas Cloud](https://www.mongodb.com/cloud/atlas))
+- **API Keys**:
   - Google Gemini API key from [ai.google.dev](https://ai.google.dev)
   - Cloudinary account from [cloudinary.com](https://cloudinary.com)
 
-### Setup Steps
+### Step-by-Step Setup
 
 1. **Navigate to server directory**
    ```bash
    cd server
    ```
 
-2. **Install dependencies**
+2. **Install Node.js dependencies**
    ```bash
    npm install
+   # or
+   yarn install
    ```
 
-3. **Create `.env` file**
+3. **Create `.env` configuration file**
    ```bash
-   cp .env.example .env  # If available
-   # Or create manually with the configuration shown below
+   # Create from template (if available)
+   cp .env.example .env
+   
+   # OR create manually with the configuration shown below
    ```
 
-4. **Configure environment variables** (see Configuration section)
+4. **Configure environment variables** (see Configuration section below)
 
-5. **Start the server**
+5. **Start the development server**
    ```bash
    npm start
    ```
    
-   Server will run at `http://localhost:5000` with auto-reload via nodemon
+   Expected output:
+   ```
+   Server is running on port 5000
+   MongoDB connected successfully
+   ```
 
-### Verify Installation
-```bash
-# Server should output:
-# Server is running on port 5000
+6. **Verify installation**
+   ```bash
+   curl http://localhost:5000/api/v1/health
+   ```
+
+---
+
+## ⚙️ Environment Configuration
+
+Create a `.env` file in the `server/` directory with the following variables:
+
+```env
+# ========== Server Configuration ==========
+PORT=5000
+NODE_ENV=development
+
+# ========== Client Configuration ==========
+CORS_ORIGIN=http://localhost:3000
+
+# ========== Database Configuration ==========
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/chatapp_db
+
+# ========== JWT Configuration ==========
+ACCESS_TOKEN_SECRET=your_super_secret_access_token_key_change_in_production_!@#$%
+REFRESH_TOKEN_SECRET=your_super_secret_refresh_token_key_change_in_production_!@#$%
+ACCESS_TOKEN_EXPIRY=1d
+REFRESH_TOKEN_EXPIRY=7d
+
+# ========== Google Gemini AI Configuration ==========
+GEMINI_API_KEY=your_google_gemini_api_key_here
+
+# ========== Cloudinary Configuration ==========
+CLOUDINARY_NAME=your_cloudinary_account_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+
+# ========== Optional: File Upload Configuration ==========
+MAX_FILE_SIZE=5242880  # 5MB in bytes
+ALLOWED_FILE_TYPES=jpg,jpeg,png,gif,webp
+```
+
+### How to Get API Keys
+
+#### Google Gemini API Key
+1. Go to [ai.google.dev](https://ai.google.dev)
+2. Click "Get API Key"
+3. Create a new project or select existing
+4. Generate API key
+5. Copy and add to `.env` as `GEMINI_API_KEY`
+
+#### Cloudinary Credentials
+1. Sign up at [cloudinary.com](https://cloudinary.com)
+2. Go to Dashboard
+3. Copy `Cloud Name`, `API Key`, `API Secret`
+4. Add to `.env` file
+
+#### MongoDB Connection String
+1. **Local MongoDB**: `mongodb://localhost:27017/chatapp_db`
+2. **MongoDB Atlas**:
+   - Sign up at [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
+   - Create cluster
+   - Get connection string
+   - Add to `.env` as `MONGODB_URI`
+
+---
+
+## 🔌 API Endpoints
+
+### Base URL
+```
+http://localhost:5000/api/v1
+```
+
+### Authentication Routes (`/auth`)
+
+#### 1. Register User
+```http
+POST /auth/register
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "password": "SecurePassword123!"
+}
+```
+
+**Success Response (201):**
+```json
+{
+  "statusCode": 201,
+  "message": "User created successfully",
+  "data": {
+    "user": {
+      "_id": "507f1f77bcf86cd799439011",
+      "firstName": "john",
+      "lastName": "doe",
+      "email": "john@example.com",
+      "avatar": null,
+      "createdAt": "2026-05-19T10:30:00.000Z",
+      "updatedAt": "2026-05-19T10:30:00.000Z"
+    },
+    "accessT": "eyJhbGc...",
+    "refreshT": "eyJhbGc..."
+  }
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "statusCode": 400,
+  "message": "Bad request",
+  "errors": ["User already exists"]
+}
+```
+
+#### 2. Login User
+```http
+POST /auth/login
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "SecurePassword123!"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "statusCode": 200,
+  "message": "User logged in successfully",
+  "data": {
+    "user": {
+      "_id": "507f1f77bcf86cd799439011",
+      "firstName": "john",
+      "lastName": "doe",
+      "email": "john@example.com",
+      "avatar": "https://res.cloudinary.com/...",
+      "createdAt": "2026-05-19T10:30:00.000Z",
+      "updatedAt": "2026-05-19T10:30:00.000Z"
+    },
+    "accessT": "eyJhbGc...",
+    "refreshT": "eyJhbGc..."
+  }
+}
+```
+
+#### 3. Refresh Access Token
+```http
+POST /auth/refreshaccesstoken
+Content-Type: application/json
+
+{
+  "refreshToken": "eyJhbGc..."
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "statusCode": 200,
+  "message": "Access token refreshed",
+  "data": {
+    "accessT": "eyJhbGc...",
+    "refreshT": "eyJhbGc..."
+  }
+}
+```
+
+#### 4. Logout User
+```http
+POST /auth/logout
+Authorization: Bearer <access_token>
+```
+
+**Success Response (200):**
+```json
+{
+  "statusCode": 200,
+  "message": "User logged out successfully",
+  "data": {}
+}
+```
+
+#### 5. Get Current User Profile
+```http
+GET /auth/me
+Authorization: Bearer <access_token>
+```
+
+**Success Response (200):**
+```json
+{
+  "statusCode": 200,
+  "message": "User profile retrieved",
+  "data": {
+    "user": {
+      "_id": "507f1f77bcf86cd799439011",
+      "firstName": "john",
+      "lastName": "doe",
+      "email": "john@example.com",
+      "avatar": "https://res.cloudinary.com/...",
+      "createdAt": "2026-05-19T10:30:00.000Z",
+      "updatedAt": "2026-05-19T10:30:00.000Z"
+    }
+  }
+}
+```
+
+#### 6. Change Password
+```http
+POST /auth/changepassword
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+  "oldPassword": "OldPassword123!",
+  "newPassword": "NewPassword123!"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "statusCode": 200,
+  "message": "Password changed successfully",
+  "data": {}
+}
+```
+
+#### 7. Upload User Avatar
+```http
+POST /auth/avatar
+Authorization: Bearer <access_token>
+Content-Type: multipart/form-data
+
+Form Data:
+- Field: "avatar"
+- Value: <image_file>
+```
+
+**Success Response (200):**
+```json
+{
+  "statusCode": 200,
+  "message": "Avatar uploaded successfully",
+  "data": {
+    "avatarUrl": "https://res.cloudinary.com/..."
+  }
+}
 ```
 
 ---
 
-## ⚙️ Configuration
+### Chat Routes (`/chat`)
 
-Create a `.env` file in the `server/` directory with the following configuration:
+#### 1. Send Message to AI
+```http
+POST /chat/chatwithai
+Authorization: Bearer <access_token>
+Content-Type: application/json
 
-```env
-# Server Configuration
-PORT=5000
-NODE_ENV=development
+{
+  "message": "What is the meaning of life?"
+}
+```
 
-# Client Configuration
-CORS_ORIGIN=http://localhost:3000
+**Success Response (200):**
+```json
+{
+  "statusCode": 200,
+  "message": "success",
+  "data": {
+    "chatmodel": {
+      "_id": "507f1f77bcf86cd799439011",
+      "owner": "507f1f77bcf86cd799439012",
+      "message": [
+        {
+          "role": "user",
+          "text": "What is the meaning of life?"
+        },
+        {
+          "role": "model",
+          "text": "The meaning of life is a philosophical question that has been debated..."
+        }
+      ],
+      "createdAt": "2026-05-19T10:30:00.000Z",
+      "updatedAt": "2026-05-19T10:30:00.000Z"
+    }
+  }
+}
+```
 
-# MongoDB Configuration
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/chatapp_db
+**Error Response (400):**
+```json
+{
+  "statusCode": 400,
+  "message": "Bad request",
+  "errors": ["Please provides message"]
+}
+```
 
-# JWT Configuration
-ACCESS_TOKEN_SECRET=your_super_secret_access_token_key_change_in_production
-REFRESH_TOKEN_SECRET=your_super_secret_refresh_token_key_change_in_production
-ACCESS_TOKEN_EXPIRY=1d
-REFRESH_TOKEN_EXPIRY=7d
+#### 2. Generate AI Image
+```http
+POST /chat/createimage
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+  "prompt": "A beautiful sunset over mountains"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "statusCode": 200,
+  "message": "success",
+  "data": {
+    "chat": {
+      "_id": "507f1f77bcf86cd799439011",
+      "owner": "507f1f77bcf86cd799439012",
+      "message": [
+        {
+          "role": "user",
+          "text": "A beautiful sunset over mountains"
+        },
+        {
+          "role": "model",
+          "text": "https://res.cloudinary.com/... or image data URL"
+        }
+      ],
+      "createdAt": "2026-05-19T10:30:00.000Z",
+      "updatedAt": "2026-05-19T10:30:00.000Z"
+    }
+  }
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "statusCode": 400,
+  "message": "Bad Request",
+  "errors": ["prompt is required"]
+}
+```
+
+---
+
+## 🗄️ Database Schema
+
+### User Model (MongoDB)
+```javascript
+{
+  _id: ObjectId,
+  firstName: String,           // Required, trimmed, lowercase
+  lastName: String,            // Required, trimmed, lowercase
+  email: String,               // Required, unique, indexed, lowercase
+  password: String,            // Required, bcrypt hashed (10 salt rounds)
+  avatar: String,              // Optional, Cloudinary URL
+  refreshToken: String,        // JWT refresh token
+  createdAt: Timestamp,        // Auto-generated
+  updatedAt: Timestamp         // Auto-generated
+}
+```
+
+### Chat Model (MongoDB)
+```javascript
+{
+  _id: ObjectId,
+  owner: ObjectId,             // Reference to User, indexed
+  message: [
+    {
+      role: String,            // "user" or "model"
+      text: String             // Message content
+    }
+  ],
+  createdAt: Timestamp,        // Auto-generated
+  updatedAt: Timestamp         // Auto-generated
+}
+```
+
+---
+
+## 🏗️ Project Structure
+
+```
+server/
+├── src/
+│   ├── index.js                  # Server entry point
+│   ├── app.js                    # Express app configuration
+│   ├── constants.js              # Application constants
+│   │
+│   ├── controllers/              # Business logic layer
+│   │   ├── user.controller.js    # User CRUD & auth operations
+│   │   ├── chat.controller.js    # Chat & AI integration logic
+│   │   └── ...
+│   │
+│   ├── models/                   # MongoDB schemas with Mongoose
+│   │   ├── user.models.js        # User schema with auth methods
+│   │   ├── chat.models.js        # Chat messages schema
+│   │   └── ...
+│   │
+│   ├── routes/                   # API endpoint definitions
+│   │   ├── user.routes.js        # Auth & user management routes
+│   │   ├── chat.routes.js        # Chat & image generation routes
+│   │   └── ...
+│   │
+│   ├── middlewares/              # Express middlewares
+│   │   ├── auth.middlewares.js   # JWT verification middleware
+│   │   ├── multer.middlewares.js # File upload handling
+│   │   └── ...
+│   │
+│   ├── db/                       # Database configuration
+│   │   └── connect.db.js         # MongoDB connection setup
+│   │
+│   ├── utils/                    # Utility functions
+│   │   ├── apiresponse.js        # Standard API response formatter
+│   │   ├── apierror.js           # Custom error class
+│   │   ├── asynchandelar.js      # Async function error wrapper
+│   │   ├── uploadcloudinary.js   # Cloudinary upload helper
+│   │   ├── allaifetures.js       # Gemini AI functions
+│   │   └── ...
+│   │
+│   └── public/                   # Static files
+│       └── uploads/              # Temporary file storage
+│
+├── .env                          # Environment variables (create this)
+├── .env.example                  # Template for .env file
+├── .gitignore                    # Git ignore rules
+├── package.json                  # Node.js dependencies
+├── package-lock.json             # Dependency lock file
+└── README.md                     # This file
+```
+
+---
+
+## 🔐 Security Features
+
+### Password Security
+- Bcrypt hashing with 10 salt rounds
+- Never stored in plain text
+- Compared securely during login
+
+### JWT Authentication
+- **Access Token**: 1 day expiry (configurable)
+- **Refresh Token**: 7 days expiry (configurable)
+- Tokens stored as HTTP-only cookies
+- Also returned in response body for mobile apps
+
+### CORS Protection
+- Configurable allowed origins
+- Credentials support enabled
+- Prevents cross-site request forgery
+
+### Protected Routes
+- Middleware-based JWT verification
+- Automatic token validation on protected endpoints
+- Returns 401 Unauthorized on invalid/expired tokens
+
+### Input Validation
+- Trimmed and lowercase email normalization
+- Required field validation
+- Password strength validation
+- Error messages for validation failures
+
+### Error Handling
+- Custom async error wrapper
+- Centralized error management
+- Detailed error messages for debugging
+- User-friendly error responses
+
+---
+
+## 🚀 Development & Debugging
+
+### Running Development Server
+```bash
+npm start
+# Uses nodemon for auto-reload on file changes
+```
+
+### Available Scripts
+```bash
+npm start       # Start with nodemon
+npm install     # Install dependencies
+npm update      # Update dependencies
+```
+
+### Debugging
+```bash
+# Run with debug logging
+DEBUG=* npm start
+
+# Node.js debugger
+node --inspect src/index.js
+```
+
+### Testing Endpoints
+
+#### Using cURL
+```bash
+# Register
+curl -X POST http://localhost:5000/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "Test",
+    "lastName": "User",
+    "email": "test@example.com",
+    "password": "Test123!"
+  }'
+
+# Login
+curl -X POST http://localhost:5000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "Test123!"
+  }'
+
+# Send message to AI (with token)
+curl -X POST http://localhost:5000/api/v1/chat/chatwithai \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "message": "Hello AI!"
+  }'
+```
+
+#### Using Postman
+1. Import [API collection](./api_doc.md) into Postman
+2. Set environment variables (base_url, access_token)
+3. Test each endpoint
+
+#### Using VS Code REST Client
+Create a `.rest` file and use VS Code REST Client extension:
+```http
+POST http://localhost:5000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Test",
+  "lastName": "User",
+  "email": "test@example.com",
+  "password": "Test123!"
+}
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### Server Issues
+
+#### Port 5000 Already in Use (Windows)
+```powershell
+# Find process using port 5000
+netstat -ano | findstr :5000
+
+# Kill the process
+taskkill /PID <PID> /F
+
+# Or use different port
+PORT=5001 npm start
+```
+
+#### Port 5000 Already in Use (Mac/Linux)
+```bash
+# Find process
+lsof -i :5000
+
+# Kill the process
+kill -9 <PID>
+
+# Or use different port
+PORT=5001 npm start
+```
+
+#### MongoDB Connection Failed
+```
+Error: connect ECONNREFUSED 127.0.0.1:27017
+```
+
+**Solutions:**
+1. Verify MongoDB URI in `.env` file (check for typos, spaces)
+2. For MongoDB Atlas:
+   - Check IP whitelist includes your IP
+   - Verify username/password
+   - Test connection string: `mongodb+srv://user:pass@cluster.mongodb.net/`
+3. For Local MongoDB:
+   - Ensure MongoDB service is running
+   - Windows: Check `mongod` process
+   - Mac: `brew services list`
+   - Linux: `sudo systemctl status mongod`
+4. Check firewall/network settings
+
+#### GEMINI_API_KEY Error
+```
+Error: Invalid API key or API not enabled
+```
+
+**Solutions:**
+1. Verify API key in `.env` (no extra spaces)
+2. Check API key is valid at [ai.google.dev](https://ai.google.dev)
+3. Ensure Gemini API is enabled in Google Cloud Console
+4. Verify API key has necessary permissions
+5. Check API key quota limits
+
+#### Cloudinary Upload Failed
+```
+Error: 401 Unauthorized - invalid credentials
+```
+
+**Solutions:**
+1. Verify Cloudinary credentials in `.env`:
+   - `CLOUDINARY_NAME` (Cloud name)
+   - `CLOUDINARY_API_KEY` (API key)
+   - `CLOUDINARY_API_SECRET` (API secret)
+2. Check credentials at [cloudinary.com/console](https://cloudinary.com/console)
+3. Ensure account is active and not rate-limited
+4. Check upload folder permissions
+
+#### JWT Token Errors
+```
+Error: jwt malformed or invalid signature
+```
+
+**Solutions:**
+1. Verify `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET` in `.env`
+2. Ensure tokens haven't expired
+3. Check Authorization header format: `Bearer <token>`
+4. Clear cached tokens and re-login
+
+### API Errors
+
+#### 400 Bad Request
+- Missing required fields in request body
+- Invalid data format
+- Email already exists
+- Invalid credentials
+
+#### 401 Unauthorized
+- Missing/invalid authorization header
+- Expired access token (use refresh endpoint)
+- Invalid/missing token
+
+#### 404 Not Found
+- User not found
+- Endpoint doesn't exist
+- Resource deleted
+
+#### 500 Internal Server Error
+- Database connection failed
+- AI API error
+- Unhandled exception
+- Check server logs
+
+---
+
+## 📊 Performance Tips
+
+1. **Database Indexing**: Ensure indexes on frequently queried fields
+2. **Caching**: Consider caching user profiles and chat history
+3. **Pagination**: Implement pagination for chat messages
+4. **Rate Limiting**: Add rate limiting to prevent abuse
+5. **Compression**: Enable gzip compression for responses
+6. **Connection Pooling**: Use MongoDB connection pooling
+
+---
+
+## 🔗 Useful Commands
+
+```bash
+# Check Node version
+node --version
+
+# Check npm version
+npm --version
+
+# View installed packages
+npm list
+
+# Update packages
+npm update
+
+# Audit security vulnerabilities
+npm audit
+
+# Fix security issues
+npm audit fix
+
+# Check for outdated packages
+npm outdated
+```
+
+---
+
+## 📚 Additional Resources
+
+- [Express.js Documentation](https://expressjs.com/)
+- [MongoDB Documentation](https://docs.mongodb.com/)
+- [Mongoose Documentation](https://mongoosejs.com/)
+- [Google Gemini API](https://ai.google.dev/)
+- [Cloudinary Documentation](https://cloudinary.com/documentation)
+- [JWT.io](https://jwt.io/)
+- [Postman Learning](https://learning.postman.com/)
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these guidelines:
+1. Create a feature branch
+2. Make your changes
+3. Test thoroughly
+4. Create a pull request
+
+---
+
+## 📄 License
+
+This project is licensed under the ISC License - see the [LICENSE](../LICENSE) file for details.
+
+---
 
 # Google Gemini AI Configuration
 GEMINI_API_KEY=your_google_gemini_api_key

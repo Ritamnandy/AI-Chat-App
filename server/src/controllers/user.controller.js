@@ -5,6 +5,7 @@ import { ApiError } from '../utils/apierror.js'
 import { ApiResponse } from '../utils/apiresponse.js'
 import { asyncHandler } from '../utils/asynchandelar.js'
 import { uploadCloudinary } from "../utils/uploadcloudinary.js"
+import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 
 
@@ -70,6 +71,8 @@ const loginUser = asyncHandler(async (req, res) => {
         return res.status(400).json(new ApiError(400, "Bad request", ["Invalid  email"]));
     }
     const isPassword = await user.isPasswordMatch(password)
+    // console.log(isPassword);
+
     if (!isPassword) {
         return res.status(400).json(new ApiError(400, "Bad request", ["Invalid  password"]));
     }
@@ -169,12 +172,46 @@ const getCurrentUserDetails = asyncHandler(async (req, res) => {
     }
     return res.status(200).json(new ApiResponse(200, "User details fetched successfully", { user }));
 })
+//get all chat of a user
 
-
+const getAllChat = asyncHandler(async (req, res) => {
+    const userId = req.user?._id;
+    if (!userId) {
+        return res.status(401).json(new ApiError(401, "Unauthorized", ["User not authenticated"]));
+    }
+    const chats = await User.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(userId)
+            }
+        },
+        {
+            $lookup: {
+                from: "chats",
+                localField: "_id",
+                foreignField: "Onwer",
+                as: "allChats"
+            }
+        },
+        {
+            $project: {
+                allChats: {
+                    title: 1,
+                    Message: 1,
+                }
+            }
+        }
+    ])
+    if (!chats) {
+        return res.status(404).json(new ApiError(404, "Not found", ["No chats found for this user"]));
+    }
+    return res.status(200).json(new ApiResponse(200, "All chats fetched successfully",  chats[0].allChats ));
+})
 
 export {
     registerUser, loginUser,
     logoutUser, changeCurrentPassword,
     setAvatar, refreshAccessToken,
-    getCurrentUserDetails
+    getCurrentUserDetails,
+    getAllChat
 }

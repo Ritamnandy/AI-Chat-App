@@ -90,7 +90,26 @@ AI-Chat-App/
 
 ---
 
-## 📊 Database Schema
+## � Quick Start
+
+### Backend Setup
+```bash
+cd server
+npm install
+cp .env.example .env  # Configure environment variables
+npm start
+```
+
+### Frontend Setup
+```bash
+cd client
+flutter pub get
+flutter run
+```
+
+---
+
+## �📊 Database Schema
 
 ### User Model
 ```

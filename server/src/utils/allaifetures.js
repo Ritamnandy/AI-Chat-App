@@ -47,11 +47,11 @@ const messageStream = async (message, chat) => {
                 responseText += part.text;
             }
         }
-        console.log("response from ai :- ", responseText);
+        // console.log("response from ai :- ", responseText);
 
         return responseText;
     } catch (error) {
-        console.error("Error in messageStream: ", error);
+        // console.error("Error in messageStream: ", error);
         return null;
     }
 }
